@@ -1,8 +1,9 @@
 class jogoDaMemoria {
     //se mandar um obj = {tela: 1, idade: 2, etc: 3}
     //vai ignorar o resto das propriedades e pegar somente a propriedade tela.
-    constructor({tela}){
+    constructor({tela, util}){
         this.tela = tela
+        this.util = util
         //caminho do arquivo, sempre relativo ao index.html 
         this.heroisIniciais = [
             { img: "./arquivos/batman.png", name: "batman"},
@@ -23,8 +24,9 @@ class jogoDaMemoria {
         //força a tela a usar o this de Jogo da Memoria
         this.tela.configurarBotaoJogar(this.jogar.bind(this))
         this.tela.configurarBotaoVerificarSelecao(this.verificarSelecao.bind(this))
+        this.tela.configurarBotaoMostrarTudo(this.mostrarHeroisEscondidos.bind(this))
     }
-    embaralhar(){
+    async embaralhar(){
         const copias = this.heroisIniciais
         //duplicas itens
         .concat(this.heroisIniciais)
@@ -36,9 +38,11 @@ class jogoDaMemoria {
         //ordenar aleatoriamente 
         .sort(()=> Math.random() - 0.5)
         this.tela.atualizarImagens(copias)
-        setTimeout(() => {
-            this.esconderHerois(copias)
-        }, 1000);
+        this.tela.exibirCarregando()
+        await this.util.timeout(1000)
+        this.esconderHerois(copias)
+        this.tela.exibirCarregando(false)
+        
     }
 
     esconderHerois(herois){
@@ -54,7 +58,7 @@ class jogoDaMemoria {
 
         //atualizamos a tela com os herois ocultos
         this.tela.atualizarImagens(heroisOcultos)
-        this.heroisOcultos = heroisOcultos
+        this.heroisEscondidos = heroisOcultos
     }
 
     exibirHerois(nomeDoHeroi){
@@ -92,6 +96,15 @@ class jogoDaMemoria {
                 
 
         }
+    }
+    mostrarHeroisEscondidos(){
+        //vamos pegar todos os herois da tela e colocar seu respectivo valor correto
+        const heroisEscondidos = this.heroisEscondidos
+        for(const heroi of heroisEscondidos){
+            const{ img } = this.heroisIniciais.find(item => item.name === heroi.name )
+            heroi.img = img
+        }
+        this.tela.atualizarImagens(heroisEscondidos)
     }
 
     jogar(){

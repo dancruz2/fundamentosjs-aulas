@@ -28,7 +28,7 @@ class jogoDaMemoria {
             return Object.assign({}, item, {id: Math.random()/0.5} )
         })
 
-        //ordenar  
+        //ordenar aleatoriamente 
         .sort(()=> Math.random() - 0.5)
         this.tela.atualizarImagens(copias)
     }
